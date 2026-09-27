@@ -1,0 +1,7 @@
+{
+  "name": "TaskPulse",
+  "description": "Advanced Android background task and running apps manager. Real-time RAM monitor, background task booster, Gemini Live voice conversations with gemini-3.8-live, and Google Search Grounded app diagnostics with gemini-3.5-flash.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
