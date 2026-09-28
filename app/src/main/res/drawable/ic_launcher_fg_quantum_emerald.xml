@@ -4,66 +4,40 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-
-    <!-- 8 Gear Teeth at 45 degree intervals around center (54, 54) -->
     <group android:pivotX="54" android:pivotY="54">
-        <path
-            android:fillColor="#00E5FF"
-            android:pathData="M 50, 22 L 58, 22 L 57.5, 30 L 50.5, 30 Z" />
+        <path android:fillColor="#00E676" android:pathData="M 50, 22 L 58, 22 L 57.5, 30 L 50.5, 30 Z" />
     </group>
     <group android:pivotX="54" android:pivotY="54" android:rotation="45">
-        <path
-            android:fillColor="#00E5FF"
-            android:pathData="M 50, 22 L 58, 22 L 57.5, 30 L 50.5, 30 Z" />
+        <path android:fillColor="#00E676" android:pathData="M 50, 22 L 58, 22 L 57.5, 30 L 50.5, 30 Z" />
     </group>
     <group android:pivotX="54" android:pivotY="54" android:rotation="90">
-        <path
-            android:fillColor="#00E5FF"
-            android:pathData="M 50, 22 L 58, 22 L 57.5, 30 L 50.5, 30 Z" />
+        <path android:fillColor="#00E676" android:pathData="M 50, 22 L 58, 22 L 57.5, 30 L 50.5, 30 Z" />
     </group>
     <group android:pivotX="54" android:pivotY="54" android:rotation="135">
-        <path
-            android:fillColor="#00E5FF"
-            android:pathData="M 50, 22 L 58, 22 L 57.5, 30 L 50.5, 30 Z" />
+        <path android:fillColor="#00E676" android:pathData="M 50, 22 L 58, 22 L 57.5, 30 L 50.5, 30 Z" />
     </group>
     <group android:pivotX="54" android:pivotY="54" android:rotation="180">
-        <path
-            android:fillColor="#00E5FF"
-            android:pathData="M 50, 22 L 58, 22 L 57.5, 30 L 50.5, 30 Z" />
+        <path android:fillColor="#00E676" android:pathData="M 50, 22 L 58, 22 L 57.5, 30 L 50.5, 30 Z" />
     </group>
     <group android:pivotX="54" android:pivotY="54" android:rotation="225">
-        <path
-            android:fillColor="#00E5FF"
-            android:pathData="M 50, 22 L 58, 22 L 57.5, 30 L 50.5, 30 Z" />
+        <path android:fillColor="#00E676" android:pathData="M 50, 22 L 58, 22 L 57.5, 30 L 50.5, 30 Z" />
     </group>
     <group android:pivotX="54" android:pivotY="54" android:rotation="270">
-        <path
-            android:fillColor="#00E5FF"
-            android:pathData="M 50, 22 L 58, 22 L 57.5, 30 L 50.5, 30 Z" />
+        <path android:fillColor="#00E676" android:pathData="M 50, 22 L 58, 22 L 57.5, 30 L 50.5, 30 Z" />
     </group>
     <group android:pivotX="54" android:pivotY="54" android:rotation="315">
-        <path
-            android:fillColor="#00E5FF"
-            android:pathData="M 50, 22 L 58, 22 L 57.5, 30 L 50.5, 30 Z" />
+        <path android:fillColor="#00E676" android:pathData="M 50, 22 L 58, 22 L 57.5, 30 L 50.5, 30 Z" />
     </group>
-
-    <!-- Gear Outer Rim (radius 26) with Center Cutout (radius 17) -->
     <path
-        android:fillColor="#00E5FF"
+        android:fillColor="#00E676"
         android:fillType="evenOdd"
         android:pathData="M 54, 28 A 26 26 0 1 0 54, 80 A 26 26 0 1 0 54, 28 Z M 54, 37 A 17 17 0 1 0 54, 71 A 17 17 0 1 0 54, 37 Z" />
-
-    <!-- Inner Core Backplate -->
     <path
         android:fillColor="#40000000"
         android:pathData="M 54, 37.5 A 16.5 16.5 0 1 0 54, 70.5 A 16.5 16.5 0 1 0 54, 37.5 Z" />
-
-    <!-- Center Lightning Bolt (Electric Pulse) in Secondary Accent -->
     <path
-        android:fillColor="#00E676"
+        android:fillColor="#00E5FF"
         android:pathData="M 55, 35 L 46, 53 L 53, 53 L 49, 73 L 62, 51 L 55, 51 Z" />
-
-    <!-- Center Lightning Bolt White Core Highlight -->
     <path
         android:fillColor="#FFFFFFFF"
         android:pathData="M 54.5, 38 L 48.5, 52 L 53.5, 52 L 51, 67 L 59.5, 51.5 L 54.5, 51.5 Z" />

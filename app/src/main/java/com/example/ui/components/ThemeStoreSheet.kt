@@ -1,6 +1,5 @@
 package com.example.ui.components
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -24,25 +23,25 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ColorLens
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -67,8 +66,12 @@ import com.example.ui.theme.ThemePresets
 fun ThemeStoreSheet(
     sheetState: SheetState,
     currentTheme: AppThemePreset,
+    userCredits: Int,
+    unlockedThemeIds: Set<String>,
     isDarkMode: Boolean,
     onApplyTheme: (AppThemePreset) -> Unit,
+    onBuyTheme: (AppThemePreset) -> Unit,
+    onGoToTasks: () -> Unit,
     onToggleDarkMode: (Boolean) -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -105,28 +108,11 @@ fun ThemeStoreSheet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(44.dp)
-                            .clip(CircleShape)
-                            .background(
-                                Brush.linearGradient(
-                                    listOf(
-                                        currentTheme.primaryAccent.copy(alpha = 0.25f),
-                                        currentTheme.secondaryAccent.copy(alpha = 0.15f)
-                                    )
-                                )
-                            )
-                            .border(1.dp, currentTheme.primaryAccent.copy(alpha = 0.5f), CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Palette,
-                            contentDescription = "Theme Store",
-                            tint = currentTheme.primaryAccent,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
+                    AppGearIcon(
+                        primaryColor = currentTheme.primaryAccent,
+                        secondaryColor = currentTheme.secondaryAccent,
+                        size = 44.dp
+                    )
 
                     Spacer(modifier = Modifier.width(14.dp))
 
@@ -157,7 +143,7 @@ fun ThemeStoreSheet(
                             }
                         }
                         Text(
-                            text = "Visual themes & real-time color styling",
+                            text = "Buy exclusive visual palettes with Pulse Credits",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -186,6 +172,79 @@ fun ThemeStoreSheet(
                             text = if (isDarkMode) "Dark" else "Light",
                             style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
                             color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Pulse Credits Balance Bar
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp),
+                shape = RoundedCornerShape(14.dp),
+                color = currentTheme.primaryAccent.copy(alpha = 0.12f),
+                border = BorderStroke(1.dp, currentTheme.primaryAccent.copy(alpha = 0.35f))
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 14.dp, vertical = 10.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clip(CircleShape)
+                                .background(currentTheme.primaryAccent.copy(alpha = 0.2f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Bolt,
+                                contentDescription = "Pulse Credits",
+                                tint = currentTheme.primaryAccent,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column {
+                            Text(
+                                text = "AVAILABLE BALANCE",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontSize = 9.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = FontFamily.Monospace
+                                ),
+                                color = currentTheme.primaryAccent
+                            )
+                            Text(
+                                text = "$userCredits ⚡ Pulse Credits",
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.ExtraBold,
+                                    fontFamily = FontFamily.Monospace
+                                ),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+
+                    Button(
+                        onClick = onGoToTasks,
+                        shape = RoundedCornerShape(8.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = currentTheme.primaryAccent,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        ),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                        modifier = Modifier.testTag("earn_more_credits_button")
+                    ) {
+                        Text(
+                            text = "Earn in Tasks",
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold)
                         )
                     }
                 }
@@ -227,7 +286,7 @@ fun ThemeStoreSheet(
                 }
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             // Filtered Theme Cards
             val displayedThemes = remember(selectedCategory) {
@@ -241,17 +300,22 @@ fun ThemeStoreSheet(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(460.dp),
+                    .height(440.dp),
                 contentPadding = PaddingValues(horizontal = 20.dp, vertical = 6.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 items(displayedThemes, key = { it.id }) { preset ->
                     val isApplied = preset.id == currentTheme.id
+                    val isUnlocked = preset.priceCredits == 0 || unlockedThemeIds.contains(preset.id)
                     ThemeCard(
                         preset = preset,
                         isApplied = isApplied,
+                        isUnlocked = isUnlocked,
+                        userCredits = userCredits,
                         isDarkMode = isDarkMode,
-                        onApply = { onApplyTheme(preset) }
+                        onApply = { onApplyTheme(preset) },
+                        onBuy = { onBuyTheme(preset) },
+                        onGoToTasks = onGoToTasks
                     )
                 }
             }
@@ -263,8 +327,12 @@ fun ThemeStoreSheet(
 private fun ThemeCard(
     preset: AppThemePreset,
     isApplied: Boolean,
+    isUnlocked: Boolean,
+    userCredits: Int,
     isDarkMode: Boolean,
-    onApply: () -> Unit
+    onApply: () -> Unit,
+    onBuy: () -> Unit,
+    onGoToTasks: () -> Unit
 ) {
     val borderColor by animateColorAsState(
         targetValue = if (isApplied) preset.primaryAccent else MaterialTheme.colorScheme.outline.copy(alpha = 0.25f),
@@ -289,20 +357,17 @@ private fun ThemeCard(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            // Top Row: Title, Tag, and Applied Badge
+            // Top Row: Title, Tag, and Status/Price Badge
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    // Theme color indicator dot
-                    Box(
-                        modifier = Modifier
-                            .size(14.dp)
-                            .clip(CircleShape)
-                            .background(preset.primaryAccent)
-                            .border(1.5.dp, Color.White.copy(alpha = 0.4f), CircleShape)
+                    AppGearIcon(
+                        primaryColor = preset.primaryAccent,
+                        secondaryColor = preset.secondaryAccent,
+                        size = 26.dp
                     )
                     Spacer(modifier = Modifier.width(10.dp))
                     Text(
@@ -331,31 +396,81 @@ private fun ThemeCard(
                     }
                 }
 
-                if (isApplied) {
-                    Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = preset.primaryAccent.copy(alpha = 0.18f),
-                        border = BorderStroke(1.dp, preset.primaryAccent.copy(alpha = 0.6f))
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                // Price or Status Badge
+                when {
+                    isApplied -> {
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = preset.primaryAccent.copy(alpha = 0.18f),
+                            border = BorderStroke(1.dp, preset.primaryAccent.copy(alpha = 0.6f))
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Check,
-                                contentDescription = "Applied",
-                                tint = preset.primaryAccent,
-                                modifier = Modifier.size(14.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
+                            Row(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = "Applied",
+                                    tint = preset.primaryAccent,
+                                    modifier = Modifier.size(14.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = "ACTIVE",
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontWeight = FontWeight.ExtraBold,
+                                        letterSpacing = 0.5.sp
+                                    ),
+                                    color = preset.primaryAccent
+                                )
+                            }
+                        }
+                    }
+                    isUnlocked -> {
+                        Surface(
+                            shape = RoundedCornerShape(10.dp),
+                            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+                        ) {
                             Text(
-                                text = "ACTIVE",
+                                text = if (preset.priceCredits == 0) "FREE" else "UNLOCKED",
                                 style = MaterialTheme.typography.labelSmall.copy(
-                                    fontWeight = FontWeight.ExtraBold,
-                                    letterSpacing = 0.5.sp
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = FontFamily.Monospace,
+                                    fontSize = 10.sp
                                 ),
-                                color = preset.primaryAccent
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                             )
+                        }
+                    }
+                    else -> {
+                        // Locked with price
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = preset.primaryAccent.copy(alpha = 0.15f),
+                            border = BorderStroke(1.dp, preset.primaryAccent.copy(alpha = 0.5f))
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Bolt,
+                                    contentDescription = null,
+                                    tint = preset.primaryAccent,
+                                    modifier = Modifier.size(14.dp)
+                                )
+                                Spacer(modifier = Modifier.width(3.dp))
+                                Text(
+                                    text = "${preset.priceCredits} ⚡",
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontWeight = FontWeight.ExtraBold,
+                                        fontFamily = FontFamily.Monospace
+                                    ),
+                                    color = preset.primaryAccent
+                                )
+                            }
                         }
                     }
                 }
@@ -398,7 +513,7 @@ private fun ThemeCard(
                     shape = RoundedCornerShape(10.dp),
                     color = if (isDarkMode) Color(0xFF101726) else Color(0xFFF1F5F9),
                     border = BorderStroke(1.dp, preset.primaryAccent.copy(alpha = 0.3f)),
-                    modifier = Modifier.width(140.dp)
+                    modifier = Modifier.width(135.dp)
                 ) {
                     Column(modifier = Modifier.padding(8.dp)) {
                         Row(
@@ -420,7 +535,7 @@ private fun ThemeCard(
                                     fontWeight = FontWeight.Bold,
                                     fontFamily = FontFamily.Monospace
                                 ),
-                                color = if (isDarkMode) Color.White else Color.Black
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                         Spacer(modifier = Modifier.height(4.dp))
@@ -437,46 +552,184 @@ private fun ThemeCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-            // Action Button: Apply or Inactive
-            Button(
-                onClick = onApply,
-                enabled = !isApplied,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(44.dp)
-                    .testTag("apply_theme_${preset.id.lowercase()}"),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = preset.primaryAccent,
-                    contentColor = if (isDarkMode) Color(0xFF002228) else Color.White,
-                    disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
-                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                )
+            // Themed Launcher Icon Indicator Row
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(10.dp),
+                color = preset.primaryAccent.copy(alpha = 0.08f),
+                border = BorderStroke(1.dp, preset.primaryAccent.copy(alpha = 0.25f))
             ) {
-                if (isApplied) {
-                    Icon(
-                        imageVector = Icons.Default.Check,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp)
+                Row(
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    AppGearIcon(
+                        primaryColor = preset.primaryAccent,
+                        secondaryColor = preset.secondaryAccent,
+                        size = 28.dp
                     )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = "CURRENTLY APPLIED",
-                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Default.ColorLens,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = "APPLY ${preset.name.uppercase()}",
-                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
-                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column {
+                        Text(
+                            text = "APP ICON ADAPTS TO THEME",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                fontFamily = FontFamily.Monospace
+                            ),
+                            color = preset.primaryAccent
+                        )
+                        Text(
+                            text = "${preset.name} Gear & Lightning Bolt launcher icon",
+                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Action Buttons
+            when {
+                isApplied -> {
+                    Button(
+                        onClick = { },
+                        enabled = false,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(44.dp)
+                            .testTag("apply_theme_${preset.id.lowercase()}"),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
+                            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "CURRENTLY APPLIED",
+                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+                        )
+                    }
+                }
+                isUnlocked -> {
+                    Button(
+                        onClick = onApply,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(44.dp)
+                            .testTag("apply_theme_${preset.id.lowercase()}"),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = preset.primaryAccent,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ColorLens,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "APPLY ${preset.name.uppercase()}",
+                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+                        )
+                    }
+                }
+                else -> {
+                    // Locked: Buy or Need more Credits
+                    val canAfford = userCredits >= preset.priceCredits
+                    if (canAfford) {
+                        Button(
+                            onClick = onBuy,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(44.dp)
+                                .testTag("buy_theme_${preset.id.lowercase()}"),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = preset.primaryAccent,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ShoppingCart,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "BUY & UNLOCK (${preset.priceCredits} ⚡)",
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    fontWeight = FontWeight.ExtraBold,
+                                    fontFamily = FontFamily.Monospace
+                                )
+                            )
+                        }
+                    } else {
+                        val needed = preset.priceCredits - userCredits
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Surface(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(44.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 10.dp),
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Lock,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.size(14.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = "NEED $needed MORE ⚡",
+                                        style = MaterialTheme.typography.labelSmall.copy(
+                                            fontWeight = FontWeight.Bold,
+                                            fontFamily = FontFamily.Monospace
+                                        ),
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+
+                            Button(
+                                onClick = onGoToTasks,
+                                modifier = Modifier
+                                    .height(44.dp)
+                                    .testTag("earn_to_unlock_${preset.id.lowercase()}"),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = preset.primaryAccent,
+                                    contentColor = MaterialTheme.colorScheme.onPrimary
+                                )
+                            ) {
+                                Text(
+                                    text = "Earn in Tasks",
+                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold)
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }

@@ -7,13 +7,16 @@ import androidx.lifecycle.viewModelScope
 import com.example.data.local.CleanupLog
 import com.example.data.local.TaskPulseDatabase
 import com.example.data.local.TaskRuleSetting
+import com.example.data.local.ThemeCurrencyManager
 import com.example.data.local.WhitelistApp
 import com.example.data.model.AppProcessItem
 import com.example.data.model.ProcessFilter
 import com.example.data.model.ProcessImportanceCategory
 import com.example.data.model.ProcessSort
+import com.example.data.model.RewardTask
 import com.example.data.model.SearchGroundedResult
 import com.example.data.model.SystemRamStats
+import com.example.data.model.TaskTriggerType
 import com.example.data.repository.BoostResult
 import com.example.data.repository.TaskPulseRepository
 import com.example.data.service.BoostProgressState
@@ -45,6 +48,12 @@ class TaskPulseViewModel(application: Application) : AndroidViewModel(applicatio
     // Theme Store State & Persistence
     private val prefs = application.getSharedPreferences("taskpulse_theme_prefs", Context.MODE_PRIVATE)
 
+    val currencyManager = ThemeCurrencyManager(application)
+    val pulseCredits: StateFlow<Int> = currencyManager.credits
+    val unlockedThemes: StateFlow<Set<String>> = currencyManager.unlockedThemes
+    val rewardTasks: StateFlow<List<RewardTask>> = currencyManager.tasks
+    val unclaimedRewardsCount: StateFlow<Int> = currencyManager.unclaimedCount
+
     private val _currentThemePreset = MutableStateFlow(
         ThemePresets.getById(prefs.getString("selected_theme_id", ThemePresets.CYBER_CYAN.id))
     )
@@ -56,11 +65,28 @@ class TaskPulseViewModel(application: Application) : AndroidViewModel(applicatio
     fun setThemePreset(preset: AppThemePreset) {
         _currentThemePreset.value = preset
         prefs.edit().putString("selected_theme_id", preset.id).apply()
+        com.example.util.AppIconManager.applyThemeLauncherIcon(getApplication(), preset.id)
     }
 
     fun toggleDarkMode(isDark: Boolean) {
         _isDarkMode.value = isDark
         prefs.edit().putBoolean("is_dark_mode", isDark).apply()
+    }
+
+    fun claimTaskReward(taskId: String): Int {
+        return currencyManager.claimReward(taskId)
+    }
+
+    fun buyTheme(preset: AppThemePreset): Boolean {
+        val success = currencyManager.buyTheme(preset)
+        if (success) {
+            setThemePreset(preset)
+        }
+        return success
+    }
+
+    fun recordTaskAction(type: TaskTriggerType) {
+        currencyManager.recordAction(type)
     }
 
     private val _rawProcesses = MutableStateFlow<List<AppProcessItem>>(emptyList())
@@ -191,6 +217,7 @@ class TaskPulseViewModel(application: Application) : AndroidViewModel(applicatio
                             details = state.summary,
                             terminatedApps = state.terminatedApps
                         )
+                        currencyManager.recordAction(TaskTriggerType.RUN_BOOST)
                         refreshData()
                         _isBoosting.value = false
                     }
@@ -277,6 +304,7 @@ class TaskPulseViewModel(application: Application) : AndroidViewModel(applicatio
     fun toggleWhitelist(packageName: String, appLabel: String) {
         viewModelScope.launch {
             repository.toggleWhitelist(packageName, appLabel)
+            currencyManager.recordAction(TaskTriggerType.WHITELIST_APP)
             refreshData()
         }
     }
@@ -287,6 +315,9 @@ class TaskPulseViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun setFilter(filter: ProcessFilter) {
         _selectedFilter.value = filter
+        if (filter == ProcessFilter.HIGH_RAM) {
+            currencyManager.recordAction(TaskTriggerType.APPLY_HIGH_RAM_FILTER)
+        }
     }
 
     fun setSort(sort: ProcessSort) {
@@ -295,6 +326,9 @@ class TaskPulseViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun selectProcess(item: AppProcessItem?) {
         _selectedProcessForDetail.value = item
+        if (item != null) {
+            currencyManager.recordAction(TaskTriggerType.INSPECT_PROCESS)
+        }
     }
 
     fun dismissBoostResult() {
@@ -305,6 +339,7 @@ class TaskPulseViewModel(application: Application) : AndroidViewModel(applicatio
     fun clearHistory() {
         viewModelScope.launch {
             repository.clearHistory()
+            currencyManager.recordAction(TaskTriggerType.CLEAR_HISTORY)
         }
     }
 
@@ -319,6 +354,7 @@ class TaskPulseViewModel(application: Application) : AndroidViewModel(applicatio
                     description = desc
                 )
             )
+            currencyManager.recordAction(TaskTriggerType.ADJUST_SETTINGS)
         }
     }
 
@@ -336,6 +372,7 @@ class TaskPulseViewModel(application: Application) : AndroidViewModel(applicatio
             val result = searchService.analyzeWithGoogleSearch(query)
             _searchGroundedResult.value = result
             _isSearchAnalyzing.value = false
+            currencyManager.recordAction(TaskTriggerType.AI_SEARCH_AUDIT)
         }
     }
 
@@ -355,6 +392,7 @@ class TaskPulseViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun startLiveVoice() {
         liveAudioService.startRecording()
+        currencyManager.recordAction(TaskTriggerType.VOICE_SESSION)
     }
 
     fun stopLiveVoice() {

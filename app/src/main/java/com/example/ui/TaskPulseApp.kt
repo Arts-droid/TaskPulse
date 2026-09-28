@@ -1,7 +1,10 @@
 package com.example.ui
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,9 +14,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.ui.graphics.Color
+import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.ListAlt
@@ -28,6 +31,8 @@ import androidx.compose.material.icons.outlined.ListAlt
 import androidx.compose.material.icons.outlined.RecordVoiceOver
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Shield
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -37,12 +42,18 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
+import com.example.data.model.ProcessFilter
+import com.example.data.model.TaskTriggerType
+import com.example.ui.components.AppGearIcon
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -122,6 +133,10 @@ fun TaskPulseApp(
 
     val currentThemePreset by viewModel.currentThemePreset.collectAsStateWithLifecycle()
     val isDarkMode by viewModel.isDarkMode.collectAsStateWithLifecycle()
+    val pulseCredits by viewModel.pulseCredits.collectAsStateWithLifecycle()
+    val unlockedThemes by viewModel.unlockedThemes.collectAsStateWithLifecycle()
+    val rewardTasks by viewModel.rewardTasks.collectAsStateWithLifecycle()
+    val unclaimedRewardsCount by viewModel.unclaimedRewardsCount.collectAsStateWithLifecycle()
     var showThemeStore by remember { mutableStateOf(false) }
 
     // Handle system back navigation to return to Dashboard if in other tabs
@@ -135,11 +150,10 @@ fun TaskPulseApp(
             TopAppBar(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .size(10.dp)
-                                .clip(CircleShape)
-                                .background(currentThemePreset.secondaryAccent)
+                        AppGearIcon(
+                            primaryColor = currentThemePreset.primaryAccent,
+                            secondaryColor = currentThemePreset.secondaryAccent,
+                            size = 28.dp
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Text(
@@ -194,6 +208,37 @@ fun TaskPulseApp(
                                 imageVector = Icons.Default.Refresh,
                                 contentDescription = "Refresh Telemetry",
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+
+                    // Pulse Credits Wallet Chip
+                    Surface(
+                        shape = RoundedCornerShape(16.dp),
+                        color = currentThemePreset.primaryAccent.copy(alpha = 0.15f),
+                        border = BorderStroke(1.dp, currentThemePreset.primaryAccent.copy(alpha = 0.5f)),
+                        modifier = Modifier
+                            .clickable { showThemeStore = true }
+                            .testTag("top_bar_currency_chip")
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Bolt,
+                                contentDescription = "Pulse Credits",
+                                tint = currentThemePreset.primaryAccent,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(3.dp))
+                            Text(
+                                text = "$pulseCredits ⚡",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontWeight = FontWeight.ExtraBold,
+                                    fontFamily = FontFamily.Monospace
+                                ),
+                                color = currentThemePreset.primaryAccent
                             )
                         }
                     }
@@ -255,11 +300,36 @@ fun TaskPulseApp(
                         selected = isSelected,
                         onClick = { currentTab = tab },
                         icon = {
-                            Icon(
-                                imageVector = if (isSelected) tab.selectedIcon else tab.unselectedIcon,
-                                contentDescription = tab.title,
-                                modifier = Modifier.size(22.dp)
-                            )
+                            if (tab == AppTab.PROCESSES && unclaimedRewardsCount > 0) {
+                                BadgedBox(
+                                    badge = {
+                                        Badge(
+                                            containerColor = currentThemePreset.primaryAccent,
+                                            contentColor = MaterialTheme.colorScheme.onPrimary
+                                        ) {
+                                            Text(
+                                                text = "$unclaimedRewardsCount",
+                                                style = MaterialTheme.typography.labelSmall.copy(
+                                                    fontWeight = FontWeight.Bold,
+                                                    fontSize = 10.sp
+                                                )
+                                            )
+                                        }
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = if (isSelected) tab.selectedIcon else tab.unselectedIcon,
+                                        contentDescription = tab.title,
+                                        modifier = Modifier.size(22.dp)
+                                    )
+                                }
+                            } else {
+                                Icon(
+                                    imageVector = if (isSelected) tab.selectedIcon else tab.unselectedIcon,
+                                    contentDescription = tab.title,
+                                    modifier = Modifier.size(22.dp)
+                                )
+                            }
                         },
                         label = {
                             Text(
@@ -312,6 +382,26 @@ fun TaskPulseApp(
                         selectedSort = selectedSort,
                         ramStats = ramStats,
                         isBoosting = isBoosting,
+                        pulseCredits = pulseCredits,
+                        rewardTasks = rewardTasks,
+                        unclaimedRewardsCount = unclaimedRewardsCount,
+                        onClaimReward = { taskId -> viewModel.claimTaskReward(taskId) },
+                        onOpenThemeStore = { showThemeStore = true },
+                        onPerformTaskAction = { triggerType ->
+                            when (triggerType) {
+                                TaskTriggerType.RUN_BOOST -> viewModel.boostRam()
+                                TaskTriggerType.WHITELIST_APP -> currentTab = AppTab.WHITELIST
+                                TaskTriggerType.INSPECT_PROCESS -> { }
+                                TaskTriggerType.AI_SEARCH_AUDIT -> {
+                                    val targetApp = processes.firstOrNull()?.appLabel ?: "System"
+                                    viewModel.runSearchGroundedAnalysis("Security and background behavior audit for $targetApp on Android.")
+                                }
+                                TaskTriggerType.VOICE_SESSION -> currentTab = AppTab.VOICE
+                                TaskTriggerType.APPLY_HIGH_RAM_FILTER -> viewModel.setFilter(ProcessFilter.HIGH_RAM)
+                                TaskTriggerType.CLEAR_HISTORY -> currentTab = AppTab.HISTORY
+                                TaskTriggerType.ADJUST_SETTINGS -> currentTab = AppTab.SETTINGS
+                            }
+                        },
                         onBoostClick = { viewModel.boostRam() },
                         onSearchQueryChange = { viewModel.setSearchQuery(it) },
                         onFilterChange = { viewModel.setFilter(it) },
@@ -398,9 +488,18 @@ fun TaskPulseApp(
                 ThemeStoreSheet(
                     sheetState = themeSheetState,
                     currentTheme = currentThemePreset,
+                    userCredits = pulseCredits,
+                    unlockedThemeIds = unlockedThemes,
                     isDarkMode = isDarkMode,
                     onApplyTheme = { preset ->
                         viewModel.setThemePreset(preset)
+                    },
+                    onBuyTheme = { preset ->
+                        viewModel.buyTheme(preset)
+                    },
+                    onGoToTasks = {
+                        showThemeStore = false
+                        currentTab = AppTab.PROCESSES
                     },
                     onToggleDarkMode = { isDark ->
                         viewModel.toggleDarkMode(isDark)

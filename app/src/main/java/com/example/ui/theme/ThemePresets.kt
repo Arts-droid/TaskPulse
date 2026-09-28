@@ -15,7 +15,8 @@ data class AppThemePreset(
     val secondaryAccent: Color,
     val previewSwatches: List<Color>,
     val darkColorScheme: ColorScheme,
-    val lightColorScheme: ColorScheme
+    val lightColorScheme: ColorScheme,
+    val priceCredits: Int = 0
 )
 
 object ThemePresets {
@@ -29,6 +30,7 @@ object ThemePresets {
         description = "High-voltage neon cyan with emerald accents and cosmic dark surface.",
         primaryAccent = Color(0xFF00E5FF),
         secondaryAccent = Color(0xFF00E676),
+        priceCredits = 0,
         previewSwatches = listOf(
             Color(0xFF00E5FF),
             Color(0xFF00E676),
@@ -88,6 +90,7 @@ object ThemePresets {
         description = "Intense hacker green phosphor display with deep obsidian contrast.",
         primaryAccent = Color(0xFF00FF66),
         secondaryAccent = Color(0xFF76FF03),
+        priceCredits = 50,
         previewSwatches = listOf(
             Color(0xFF00FF66),
             Color(0xFF76FF03),
@@ -147,6 +150,7 @@ object ThemePresets {
         description = "Hot neon fuchsia, electric magenta, and twilight violet grid vibes.",
         primaryAccent = Color(0xFFFF2A85),
         secondaryAccent = Color(0xFFB388FF),
+        priceCredits = 80,
         previewSwatches = listOf(
             Color(0xFFFF2A85),
             Color(0xFFB388FF),
@@ -206,6 +210,7 @@ object ThemePresets {
         description = "Blazing electric orange and gold embers with intense performance styling.",
         primaryAccent = Color(0xFFFF6D00),
         secondaryAccent = Color(0xFFFFD600),
+        priceCredits = 100,
         previewSwatches = listOf(
             Color(0xFFFF6D00),
             Color(0xFFFFD600),
@@ -265,6 +270,7 @@ object ThemePresets {
         description = "Aggressive cyber red and bright coral for extreme high-load alerts.",
         primaryAccent = Color(0xFFFF1744),
         secondaryAccent = Color(0xFFFF5252),
+        priceCredits = 120,
         previewSwatches = listOf(
             Color(0xFFFF1744),
             Color(0xFFFF5252),
@@ -324,6 +330,7 @@ object ThemePresets {
         description = "Deep galactic indigo, starlight violet, and celestial ice accents.",
         primaryAccent = Color(0xFFB388FF),
         secondaryAccent = Color(0xFF00E5FF),
+        priceCredits = 150,
         previewSwatches = listOf(
             Color(0xFFB388FF),
             Color(0xFF7C4DFF),
@@ -383,6 +390,7 @@ object ThemePresets {
         description = "Royal electric cobalt, arctic glacier azure, and clean high-tech focus.",
         primaryAccent = Color(0xFF2979FF),
         secondaryAccent = Color(0xFF00E5FF),
+        priceCredits = 180,
         previewSwatches = listOf(
             Color(0xFF2979FF),
             Color(0xFF00E5FF),
@@ -442,6 +450,7 @@ object ThemePresets {
         description = "Sleek industrial titanium, graphite carbon, and hyper-clean monochrome lines.",
         primaryAccent = Color(0xFFE2E8F0),
         secondaryAccent = Color(0xFF94A3B8),
+        priceCredits = 200,
         previewSwatches = listOf(
             Color(0xFFE2E8F0),
             Color(0xFF94A3B8),
@@ -492,6 +501,126 @@ object ThemePresets {
         )
     )
 
+    // 9. Midas Gold (Cyberpunk Luxury)
+    val MIDAS_GOLD = AppThemePreset(
+        id = "MIDAS_GOLD",
+        name = "Midas Gold",
+        category = "Retro & Cosmic",
+        tag = "LUXURY",
+        description = "Gleaming cybernetic 24K gold with rich amber embers and obsidian obsidian.",
+        primaryAccent = Color(0xFFFFD700),
+        secondaryAccent = Color(0xFFFFAB00),
+        priceCredits = 250,
+        previewSwatches = listOf(
+            Color(0xFFFFD700),
+            Color(0xFFFFAB00),
+            Color(0xFFFFA000),
+            Color(0xFF1F1A05)
+        ),
+        darkColorScheme = darkColorScheme(
+            primary = Color(0xFFFFD700),
+            onPrimary = Color(0xFF423500),
+            primaryContainer = Color(0xFF6B5500),
+            onPrimaryContainer = Color(0xFFFFF0A3),
+            secondary = Color(0xFFFFAB00),
+            onSecondary = Color(0xFF3B2700),
+            secondaryContainer = Color(0xFF5E4000),
+            onSecondaryContainer = Color(0xFFFFDF94),
+            tertiary = Color(0xFFFF8F00),
+            onTertiary = Color(0xFF381E00),
+            error = Color(0xFFFF5252),
+            onError = Color.White,
+            background = Color(0xFF0E0B02),
+            onBackground = Color(0xFFFFFDF0),
+            surface = Color(0xFF1C1705),
+            onSurface = Color(0xFFFFFDF0),
+            surfaceVariant = Color(0xFF2C240A),
+            onSurfaceVariant = Color(0xFFC7B988),
+            outline = Color(0xFF4A3E14)
+        ),
+        lightColorScheme = lightColorScheme(
+            primary = Color(0xFFB78103),
+            onPrimary = Color.White,
+            primaryContainer = Color(0xFFFFF8E1),
+            onPrimaryContainer = Color(0xFF3D2700),
+            secondary = Color(0xFFC67D00),
+            onSecondary = Color.White,
+            secondaryContainer = Color(0xFFFFECB3),
+            onSecondaryContainer = Color(0xFF331D00),
+            tertiary = Color(0xFFB26A00),
+            onTertiary = Color.White,
+            error = Color(0xFFFF5252),
+            onError = Color.White,
+            background = Color(0xFFFFFDF5),
+            onBackground = Color(0xFF201A03),
+            surface = Color(0xFFFFFFFF),
+            onSurface = Color(0xFF201A03),
+            surfaceVariant = Color(0xFFF7EED2),
+            onSurfaceVariant = Color(0xFF635630),
+            outline = Color(0xFFDECFA3)
+        )
+    )
+
+    // 10. Quantum Emerald (Matrix Pro)
+    val QUANTUM_EMERALD = AppThemePreset(
+        id = "QUANTUM_EMERALD",
+        name = "Quantum Emerald",
+        category = "Cyber & Neon",
+        tag = "ELITE",
+        description = "Bioluminescent quantum emerald with hyper-clean jade and cyan laser reflections.",
+        primaryAccent = Color(0xFF00E676),
+        secondaryAccent = Color(0xFF00E5FF),
+        priceCredits = 300,
+        previewSwatches = listOf(
+            Color(0xFF00E676),
+            Color(0xFF00E5FF),
+            Color(0xFF69F0AE),
+            Color(0xFF051C12)
+        ),
+        darkColorScheme = darkColorScheme(
+            primary = Color(0xFF00E676),
+            onPrimary = Color(0xFF00381B),
+            primaryContainer = Color(0xFF005A2C),
+            onPrimaryContainer = Color(0xFF98FFB3),
+            secondary = Color(0xFF00E5FF),
+            onSecondary = Color(0xFF00363D),
+            secondaryContainer = Color(0xFF006064),
+            onSecondaryContainer = Color(0xFF80F2FF),
+            tertiary = Color(0xFF69F0AE),
+            onTertiary = Color(0xFF00381B),
+            error = Color(0xFFFF5252),
+            onError = Color.White,
+            background = Color(0xFF030D08),
+            onBackground = Color(0xFFEDFAF2),
+            surface = Color(0xFF06180F),
+            onSurface = Color(0xFFEDFAF2),
+            surfaceVariant = Color(0xFF0D2B1B),
+            onSurfaceVariant = Color(0xFF7FA890),
+            outline = Color(0xFF1B4D31)
+        ),
+        lightColorScheme = lightColorScheme(
+            primary = Color(0xFF008A37),
+            onPrimary = Color.White,
+            primaryContainer = Color(0xFFE8F5E9),
+            onPrimaryContainer = Color(0xFF002209),
+            secondary = Color(0xFF00838F),
+            onSecondary = Color.White,
+            secondaryContainer = Color(0xFFE0F7FA),
+            onSecondaryContainer = Color(0xFF002025),
+            tertiary = Color(0xFF00796B),
+            onTertiary = Color.White,
+            error = Color(0xFFFF5252),
+            onError = Color.White,
+            background = Color(0xFFF1FAF4),
+            onBackground = Color(0xFF081C10),
+            surface = Color(0xFFFFFFFF),
+            onSurface = Color(0xFF081C10),
+            surfaceVariant = Color(0xFFDFEFE5),
+            onSurfaceVariant = Color(0xFF3B5645),
+            outline = Color(0xFFBDD9C7)
+        )
+    )
+
     val allPresets: List<AppThemePreset> = listOf(
         CYBER_CYAN,
         NEON_MATRIX,
@@ -500,7 +629,9 @@ object ThemePresets {
         CRIMSON_CORE,
         NEBULA_VIOLET,
         OCEANIC_ICE,
-        TITANIUM_MINIMAL
+        TITANIUM_MINIMAL,
+        MIDAS_GOLD,
+        QUANTUM_EMERALD
     )
 
     val categories: List<String> = listOf("All", "Cyber & Neon", "Retro & Cosmic", "Minimalist")

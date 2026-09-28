@@ -242,8 +242,8 @@ fun SettingsScreen(
                             },
                             shape = RoundedCornerShape(10.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = if (hasUsageAccess) MaterialTheme.colorScheme.surface else CyberCyan,
-                                contentColor = if (hasUsageAccess) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.surface
+                                containerColor = if (hasUsageAccess) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.primary,
+                                contentColor = if (hasUsageAccess) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onPrimary
                             ),
                             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                         ) {
@@ -312,7 +312,7 @@ fun SettingsScreen(
                                 fontWeight = FontWeight.Bold,
                                 fontFamily = FontFamily.Monospace
                             ),
-                            color = CyberCyan
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
 
@@ -324,8 +324,8 @@ fun SettingsScreen(
                         valueRange = 60f..95f,
                         steps = 6,
                         colors = SliderDefaults.colors(
-                            thumbColor = CyberCyan,
-                            activeTrackColor = CyberCyan
+                            thumbColor = MaterialTheme.colorScheme.primary,
+                            activeTrackColor = MaterialTheme.colorScheme.primary
                         )
                     )
 
@@ -353,8 +353,8 @@ fun SettingsScreen(
                             checked = showSystemAppsInSummary,
                             onCheckedChange = { showSystemAppsInSummary = it },
                             colors = SwitchDefaults.colors(
-                                checkedThumbColor = CyberCyan,
-                                checkedTrackColor = CyberCyan.copy(alpha = 0.3f)
+                                checkedThumbColor = MaterialTheme.colorScheme.primary,
+                                checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
                             )
                         )
                     }
