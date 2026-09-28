@@ -17,6 +17,9 @@ import com.example.data.model.RewardTask
 import com.example.data.model.SearchGroundedResult
 import com.example.data.model.SystemRamStats
 import com.example.data.model.TaskTriggerType
+import com.example.data.model.DeviceTweakState
+import com.example.data.model.TweakMode
+import com.example.data.service.DeviceTweakManager
 import com.example.data.repository.BoostResult
 import com.example.data.repository.TaskPulseRepository
 import com.example.data.service.BoostProgressState
@@ -53,6 +56,35 @@ class TaskPulseViewModel(application: Application) : AndroidViewModel(applicatio
     val unlockedThemes: StateFlow<Set<String>> = currencyManager.unlockedThemes
     val rewardTasks: StateFlow<List<RewardTask>> = currencyManager.tasks
     val unclaimedRewardsCount: StateFlow<Int> = currencyManager.unclaimedCount
+
+    // Device Deep Tweaking Manager & Modes State
+    val tweakManager = DeviceTweakManager(application)
+    val tweakState: StateFlow<DeviceTweakState> = tweakManager.tweakState
+
+    fun setTweakMode(mode: TweakMode) {
+        tweakManager.applyMode(mode)
+        startPeriodicMonitor()
+        if (mode == TweakMode.GAMING) {
+            refreshData()
+        }
+    }
+
+    fun authorizeDeepTweaking(authorized: Boolean) {
+        tweakManager.authorizeDeepTweaking(authorized)
+    }
+
+    fun undoAllTweaks() {
+        tweakManager.applyMode(TweakMode.NORMAL)
+        startPeriodicMonitor()
+    }
+
+    fun refreshBatteryData() {
+        tweakManager.refreshBatteryData()
+    }
+
+    fun hasNotificationPolicyAccess(): Boolean {
+        return tweakManager.hasNotificationPolicyAccess()
+    }
 
     private val _currentThemePreset = MutableStateFlow(
         ThemePresets.getById(prefs.getString("selected_theme_id", ThemePresets.CYBER_CYAN.id))
@@ -233,7 +265,8 @@ class TaskPulseViewModel(application: Application) : AndroidViewModel(applicatio
         autoRefreshJob?.cancel()
         autoRefreshJob = viewModelScope.launch {
             while (isActive) {
-                delay(4000)
+                val interval = tweakManager.tweakState.value.telemetryPollingMs
+                delay(interval)
                 updateStatsOnly()
             }
         }

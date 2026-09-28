@@ -71,6 +71,13 @@ import com.example.ui.components.SearchGroundedDialog
 import com.example.ui.components.TaskBoosterProgressDialog
 import com.example.ui.components.ThemeStoreSheet
 import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.SportsEsports
+import androidx.compose.material.icons.filled.BatteryChargingFull
+import androidx.compose.material.icons.outlined.Tune
+import com.example.data.model.TweakMode
+import com.example.ui.components.DeepTweakConsentSheet
+import com.example.ui.screens.ModesScreen
 import com.example.ui.screens.DashboardScreen
 import com.example.ui.screens.HistoryScreen
 import com.example.ui.screens.ProcessListScreen
@@ -86,6 +93,7 @@ enum class AppTab(
     val unselectedIcon: androidx.compose.ui.graphics.vector.ImageVector
 ) {
     DASHBOARD("Dashboard", Icons.Filled.Dashboard, Icons.Outlined.Dashboard),
+    MODES("Modes", Icons.Filled.Tune, Icons.Outlined.Tune),
     PROCESSES("Tasks", Icons.Filled.ListAlt, Icons.Outlined.ListAlt),
     VOICE("Live Voice", Icons.Filled.RecordVoiceOver, Icons.Outlined.RecordVoiceOver),
     WHITELIST("Protected", Icons.Filled.Shield, Icons.Outlined.Shield),
@@ -137,7 +145,9 @@ fun TaskPulseApp(
     val unlockedThemes by viewModel.unlockedThemes.collectAsStateWithLifecycle()
     val rewardTasks by viewModel.rewardTasks.collectAsStateWithLifecycle()
     val unclaimedRewardsCount by viewModel.unclaimedRewardsCount.collectAsStateWithLifecycle()
+    val tweakState by viewModel.tweakState.collectAsStateWithLifecycle()
     var showThemeStore by remember { mutableStateOf(false) }
+    var showDeepTweakConsent by remember { mutableStateOf(false) }
 
     // Handle system back navigation to return to Dashboard if in other tabs
     BackHandler(enabled = currentTab != AppTab.DASHBOARD) {
@@ -208,6 +218,58 @@ fun TaskPulseApp(
                                 imageVector = Icons.Default.Refresh,
                                 contentDescription = "Refresh Telemetry",
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+
+                    // Active Tweak Mode Chip
+                    Surface(
+                        shape = RoundedCornerShape(16.dp),
+                        color = when (tweakState.activeMode) {
+                            TweakMode.NORMAL -> currentThemePreset.primaryAccent.copy(alpha = 0.12f)
+                            TweakMode.GAMING -> Color(0xFFFF3366).copy(alpha = 0.18f)
+                            TweakMode.POWER_SAVER -> NeonEmerald.copy(alpha = 0.18f)
+                        },
+                        border = BorderStroke(1.dp, when (tweakState.activeMode) {
+                            TweakMode.NORMAL -> currentThemePreset.primaryAccent.copy(alpha = 0.4f)
+                            TweakMode.GAMING -> Color(0xFFFF3366).copy(alpha = 0.6f)
+                            TweakMode.POWER_SAVER -> NeonEmerald.copy(alpha = 0.6f)
+                        }),
+                        modifier = Modifier
+                            .clickable { currentTab = AppTab.MODES }
+                            .testTag("top_bar_active_mode_chip")
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 7.dp, vertical = 5.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = when (tweakState.activeMode) {
+                                    TweakMode.NORMAL -> Icons.Default.Tune
+                                    TweakMode.GAMING -> Icons.Default.SportsEsports
+                                    TweakMode.POWER_SAVER -> Icons.Default.BatteryChargingFull
+                                },
+                                contentDescription = "Active Mode",
+                                tint = when (tweakState.activeMode) {
+                                    TweakMode.NORMAL -> currentThemePreset.primaryAccent
+                                    TweakMode.GAMING -> Color(0xFFFF3366)
+                                    TweakMode.POWER_SAVER -> NeonEmerald
+                                },
+                                modifier = Modifier.size(15.dp)
+                            )
+                            Spacer(modifier = Modifier.width(3.dp))
+                            Text(
+                                text = tweakState.activeMode.badgeTag,
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = FontFamily.Monospace,
+                                    fontSize = 9.5.sp
+                                ),
+                                color = when (tweakState.activeMode) {
+                                    TweakMode.NORMAL -> currentThemePreset.primaryAccent
+                                    TweakMode.GAMING -> Color(0xFFFF3366)
+                                    TweakMode.POWER_SAVER -> NeonEmerald
+                                }
                             )
                         }
                     }
@@ -290,9 +352,9 @@ fun TaskPulseApp(
                 // Show 5 primary navigation tabs
                 listOf(
                     AppTab.DASHBOARD,
+                    AppTab.MODES,
                     AppTab.PROCESSES,
                     AppTab.VOICE,
-                    AppTab.WHITELIST,
                     AppTab.HISTORY
                 ).forEach { tab ->
                     val isSelected = currentTab == tab
@@ -366,12 +428,29 @@ fun TaskPulseApp(
                         selectedFilter = selectedFilter,
                         isBoosting = isBoosting,
                         hasUsageAccess = hasUsageAccess,
+                        activeMode = tweakState.activeMode,
+                        onOpenModes = { currentTab = AppTab.MODES },
                         onSearchQueryChange = { viewModel.setSearchQuery(it) },
                         onFilterChange = { viewModel.setFilter(it) },
                         onBoostClick = { viewModel.boostRam() },
                         onProcessClick = { viewModel.selectProcess(it) },
                         onStopProcessClick = { viewModel.killProcess(it) },
                         onToggleWhitelistClick = { pkg, label -> viewModel.toggleWhitelist(pkg, label) }
+                    )
+                }
+                AppTab.MODES -> {
+                    ModesScreen(
+                        tweakState = tweakState,
+                        onSelectMode = { mode ->
+                            if (!tweakState.isDeepTweakingAuthorized && mode != TweakMode.NORMAL) {
+                                showDeepTweakConsent = true
+                            } else {
+                                viewModel.setTweakMode(mode)
+                            }
+                        },
+                        onRequestDeepTweakAuth = { showDeepTweakConsent = true },
+                        onUndoAllTweaks = { viewModel.undoAllTweaks() },
+                        onRefreshBattery = { viewModel.refreshBatteryData() }
                     )
                 }
                 AppTab.PROCESSES -> {
@@ -505,6 +584,18 @@ fun TaskPulseApp(
                         viewModel.toggleDarkMode(isDark)
                     },
                     onDismiss = { showThemeStore = false }
+                )
+            }
+
+            // Deep Tweak Consent & Modes Authorization Sheet
+            if (showDeepTweakConsent) {
+                DeepTweakConsentSheet(
+                    onDismiss = { showDeepTweakConsent = false },
+                    onAuthorize = {
+                        viewModel.authorizeDeepTweaking(true)
+                        showDeepTweakConsent = false
+                    },
+                    hasNotificationAccess = viewModel.hasNotificationPolicyAccess()
                 )
             }
         }

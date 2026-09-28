@@ -4,6 +4,11 @@ import android.content.Intent
 import android.provider.Settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,10 +51,15 @@ import androidx.compose.ui.unit.sp
 import com.example.data.model.AppProcessItem
 import com.example.data.model.ProcessFilter
 import com.example.data.model.SystemRamStats
+import com.example.data.model.TweakMode
 import com.example.ui.components.ProcessItemCard
 import com.example.ui.components.RamGaugeCard
 import com.example.ui.theme.CyberCyan
+import com.example.ui.theme.NeonEmerald
 import com.example.ui.theme.WarningAmber
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.SportsEsports
+import androidx.compose.material.icons.filled.BatteryChargingFull
 
 @Composable
 fun DashboardScreen(
@@ -59,6 +69,8 @@ fun DashboardScreen(
     selectedFilter: ProcessFilter,
     isBoosting: Boolean,
     hasUsageAccess: Boolean,
+    activeMode: TweakMode = TweakMode.NORMAL,
+    onOpenModes: () -> Unit = {},
     onSearchQueryChange: (String) -> Unit,
     onFilterChange: (ProcessFilter) -> Unit,
     onBoostClick: () -> Unit,
@@ -147,6 +159,83 @@ fun DashboardScreen(
                 isBoosting = isBoosting,
                 onBoostClick = onBoostClick
             )
+        }
+
+        // Device Performance Mode Banner
+        item {
+            val (modeColor, modeIcon) = when (activeMode) {
+                TweakMode.NORMAL -> MaterialTheme.colorScheme.primary to Icons.Default.Tune
+                TweakMode.GAMING -> Color(0xFFFF3366) to Icons.Default.SportsEsports
+                TweakMode.POWER_SAVER -> NeonEmerald to Icons.Default.BatteryChargingFull
+            }
+
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                color = modeColor.copy(alpha = 0.10f),
+                border = BorderStroke(1.dp, modeColor.copy(alpha = 0.35f)),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onOpenModes() }
+                    .testTag("dashboard_quick_modes_banner")
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(34.dp)
+                            .clip(CircleShape)
+                            .background(modeColor.copy(alpha = 0.2f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = modeIcon,
+                            contentDescription = null,
+                            tint = modeColor,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    Column(modifier = Modifier.weight(1f)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "MODE: ${activeMode.title.uppercase()}",
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    fontWeight = FontWeight.ExtraBold,
+                                    fontFamily = FontFamily.Monospace,
+                                    letterSpacing = 0.5.sp
+                                ),
+                                color = modeColor
+                            )
+                        }
+                        Text(
+                            text = activeMode.subtitle,
+                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = modeColor.copy(alpha = 0.15f),
+                        border = BorderStroke(1.dp, modeColor.copy(alpha = 0.4f))
+                    ) {
+                        Text(
+                            text = "CHANGE",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = FontFamily.Monospace,
+                                fontSize = 10.sp
+                            ),
+                            color = modeColor,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
+                }
+            }
         }
 
         // Search Bar
